@@ -96,7 +96,7 @@
                                                     <td class="form-group"> {{campsite.name}} - {{campsite.type}}</td>
                                                     <td class="form-group"> {{campsite.status}}</td>
                                                     <td>
-                                                        <input class="checkbox" type="checkbox" :value="campsite.id" :disabled="campsite.status=='booked'" v-model="multibook_selected" @change="updatePrices()" number>
+                                                        <input class="checkbox" type="checkbox" :value="campsite.id" :disabled="campsite.status=='booked' || campsite.status=='closed & booked'" v-model="multibook_selected" @change="updatePrices()" number>
                                                     </td>                                              
                                                 </tr></template>
                                             </tbody>
@@ -552,7 +552,7 @@ export default {
                stat.push(el.status);        
             }); 
             return stat.find(function(value, index){
-                if (value == "booked"){
+                if (value == "booked" || value == "closed & booked"){
                     return true;
                 }
             });          
@@ -744,7 +744,7 @@ export default {
             vm.arrivalPicker.datetimepicker({
                 format: 'DD/MM/YYYY',
                 minDate: Moment().startOf('day'),
-                maxDate: Moment().add(parseInt(vm.campground.max_advance_booking),'days')
+                // maxDate: Moment().add(parseInt(vm.campground.max_advance_booking),'days')
             });
             vm.departurePicker.datetimepicker({
                 format: 'DD/MM/YYYY',

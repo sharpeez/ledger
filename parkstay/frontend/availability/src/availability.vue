@@ -169,9 +169,13 @@
                         </td>
                     </tr>
                     <template v-if="site.showBreakdown"><tr v-for="(line, breakIndex) in site.breakdown" v-bind:key="breakIndex" class="breakdown">
-                        <td class="site">Site: {{ line.name }}</td>
+                        <td v-if="!useAdminApi" class="site">Site:</td>
+                        <td v-if="useAdminApi" class="site">Site: {{ line.name }}</td>
                         <td></td>
-                        <td class="date" v-for="(day, availabilityIndex) in line.availability" v-bind:key="availabilityIndex" v-bind:class="{available: day[0]}" >{{ day[1] }}</td>
+                        <td v-if="!useAdminApi" class="date" v-for="(day, availabilityIndex) in line.availability" v-bind:key="availabilityIndex" v-bind:class="{available: day[0]}" >{{ day[1] }}</td>
+                        <td v-if="useAdminApi" class="date" v-for="(day, availabilityIndex) in line.availability" v-bind:key="availabilityIndex" v-bind:class="{available: day[0]}" >
+                            <span data-tooltip v-bind:title="day[3]"> {{ day[1] }} </span>
+                        </td>
                     </tr></template>
                 </template></tbody>
             </table>
@@ -315,7 +319,7 @@ export default {
             errorMsg: null,
             classes: {},
             sites: [],
-            long_description: '',
+            long_description: '',   
             map: null,
             showMoreInfo: false,
             ongoing_booking: false,
@@ -332,7 +336,11 @@ export default {
         numPeople: {
             cache: false,
             get: function() {
-                var count = parseInt(this.numAdults) + parseInt(this.numConcessions) + parseInt(this.numChildren) + parseInt(this.numInfants);
+                var count = 0;
+                count += parseInt(this.numAdults) ? parseInt(this.numAdults) : 0;
+                count += parseInt(this.numConcessions) ? parseInt(this.numConcessions) : 0;
+                count += parseInt(this.numChildren) ? parseInt(this.numChildren) : 0;
+                count += parseInt(this.numInfants) ? parseInt(this.numInfants) : 0;
                 if (count === 1) {
                     return count +" person ▼";
                 } else {
@@ -375,10 +383,10 @@ export default {
             var submitData = {
                 arrival: vm.arrivalDateString,
                 departure: vm.departureDateString,
-                num_adult: vm.numAdults,
-                num_child: vm.numChildren,
-                num_concession: vm.numConcessions,
-                num_infant: vm.numInfants,
+                num_adult: parseInt(vm.numAdults) ? parseInt(vm.numAdults) : 0,
+                num_child: parseInt(vm.numChildren) ? parseInt(vm.numChildren) : 0,
+                num_concession: parseInt(vm.numConcessions) ? parseInt(vm.numConcessions) : 0,
+                num_infant: parseInt(vm.numInfants) ? parseInt(vm.numInfants) : 0,
             };
             if (site.type == 0) { // per site listing
                 submitData.campsite = site.id;
@@ -433,10 +441,10 @@ export default {
                 var params = {
                         arrival: moment(vm.arrivalDate).format('YYYY/MM/DD'),
                         departure: moment(vm.departureDate).format('YYYY/MM/DD'),
-                        num_adult: vm.numAdults,
-                        num_child: vm.numChildren,
-                        num_concession: vm.numConcessions,
-                        num_infant: vm.numInfants
+                        num_adult: parseInt(vm.numAdults) ? parseInt(vm.numAdults) : 0,
+                        num_child: parseInt(vm.numChildren) ? parseInt(vm.numChildren) : 0,
+                        num_concession: parseInt(vm.numConcessions) ? parseInt(vm.numConcessions) : 0,
+                        num_infant: parseInt(vm.numInfants) ? parseInt(vm.numInfants) : 0
                     };
 
                 var url = '';
@@ -524,6 +532,7 @@ export default {
         this.arrivalEl = $('#date-arrival');
         this.arrivalData = this.arrivalEl.fdatepicker({
             format: 'dd/mm/yyyy',
+            endDate: moment(this.arrivalEl).add(180, 'days').toDate(),
             onRender: function (date) {
                 // disallow start dates before today
                 return date.valueOf() < now.valueOf() ? 'disabled': '';
