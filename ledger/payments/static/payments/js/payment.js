@@ -305,6 +305,9 @@ $(function(){
         var external = false;
         var amount = $('#other_amount').val();
 
+
+        amount = amount.replace(/,/g, "");
+        console.log('cleaned');
         // Hide div if not hidden
         if (!$errors_div.hasClass('hide')) {
             $errors_div.addClass('hide');
@@ -316,7 +319,7 @@ $(function(){
         // Get payload
         payload = {
             "invoice": invoice,
-            "amount": $('#other_amount').val(),
+            "amount": amount,
             "type": 'payment',
             "source": $('#other_source').val()
         }
@@ -650,6 +653,7 @@ $(function(){
            return amount;
         },
         cardRefund: function(amount){
+            amount = amount.replace(/,/g, "");
             payload = {
                 "amount": amount,
                 "details": $("#refund_details > textarea[name='refund_details']").val()

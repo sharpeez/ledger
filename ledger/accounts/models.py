@@ -331,12 +331,13 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
                 self.title = user_details.get('title')
                 self.fax_number = user_details.get('org_unit__location__fax')
                 self.is_staff = True
-                
+        self.email = self.email.lower()            
         super(EmailUser, self).save(*args, **kwargs)
 
     def get_full_name(self):
         full_name = '{} {}'.format(self.first_name, self.last_name)
-        return full_name.strip()
+        #.encode('utf-8').strip()
+        return full_name
 
     def get_full_name_dob(self):
         full_name_dob = '{} {} ({})'.format(self.first_name, self.last_name, self.dob.strftime('%d/%m/%Y'))
@@ -686,6 +687,7 @@ class Organisation(models.Model):
     identification = models.FileField(upload_to='%Y/%m/%d', null=True, blank=True)
     postal_address = models.ForeignKey('OrganisationAddress', related_name='org_postal_address', blank=True, null=True, on_delete=models.SET_NULL)
     billing_address = models.ForeignKey('OrganisationAddress', related_name='org_billing_address', blank=True, null=True, on_delete=models.SET_NULL)
+    email = models.EmailField(blank=True, null=True,)
     trading_name = models.CharField(max_length=256, null=True, blank=True)
 
     def upload_identification(self, request):
